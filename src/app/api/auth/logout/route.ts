@@ -1,10 +1,9 @@
-import { successResponse, handleApiError } from "@/lib/server/api-response";
-import { clearTeacherCookie } from "@/lib/server/auth";
+import { handleApiError, successResponse } from "@/lib/server/api-response";
+import { authService } from "@/server/modules/auth/services/auth.service";
 
 export async function POST() {
   try {
-    await clearTeacherCookie();
-    return successResponse({ loggedOut: true });
+    return successResponse(await authService.logout());
   } catch (error) {
     return handleApiError(error);
   }

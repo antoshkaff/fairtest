@@ -1,20 +1,12 @@
 import type { NextRequest } from "next/server";
-import { successResponse, handleApiError } from "@/lib/server/api-response";
+import { handleApiError, successResponse } from "@/lib/server/api-response";
 import { requireTeacher } from "@/lib/server/auth";
-import { prisma } from "@/lib/server/prisma";
+import { testAttemptService } from "@/server/modules/test-passing/services/test-attempt.service";
 
 export async function GET(req: NextRequest) {
   try {
     const teacher = await requireTeacher(req);
-    const attempts = await prisma.testAttempt.findMany({
-      where: { test: { teacherId: teacher.id } },
-      include: {
-        test: { select: { id: true, title: true } },
-      },
-      orderBy: { startedAt: "desc" },
-    });
-
-    return successResponse({ items: attempts });
+    return successResponse(await testAttemptService.listTeacherResults(teacher.id));
   } catch (error) {
     return handleApiError(error);
   }

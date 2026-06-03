@@ -1,34 +1,13 @@
 import type { NextRequest } from "next/server";
-import { successResponse, handleApiError } from "@/lib/server/api-response";
-import { ERROR_CODES, AppError } from "@/lib/server/errors";
-import { prisma } from "@/lib/server/prisma";
+import { handleApiError, successResponse } from "@/lib/server/api-response";
 import { validateBody } from "@/lib/server/validate";
-import { startAttemptSchema } from "@/features/test-passing/start-attempt/schema";
+import { testAttemptService } from "@/server/modules/test-passing/services/test-attempt.service";
+import { startAttemptSchema } from "@/features/test-passing/validation/start-attempt.schema";
 
 export async function POST(req: NextRequest) {
   try {
     const input = validateBody(startAttemptSchema, await req.json());
-    const test = await prisma.test.findUnique({
-      where: { id: input.testId },
-      select: { id: true, status: true },
-    });
-
-    if (!test) {
-      throw new AppError(ERROR_CODES.TEST_NOT_FOUND, "Тест не знайдено", 404);
-    }
-
-    if (test.status !== "published") {
-      throw new AppError(ERROR_CODES.TEST_NOT_PUBLISHED, "Тест не опубліковано", 400);
-    }
-
-    const attempt = await prisma.testAttempt.create({
-      data: {
-        testId: input.testId,
-        participantFirstName: input.participantFirstName,
-        participantLastName: input.participantLastName,
-      },
-    });
-
+    const attempt = await testAttemptService.createAttemptFromInput(input);
     return successResponse(attempt, 201);
   } catch (error) {
     return handleApiError(error);
