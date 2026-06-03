@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 216 47% 97%;
+  --foreground: 215 28% 17%;
+  --border: 214 39% 90%;
+  --primary: 226 82% 55%;
+  --primary-foreground: 0 0% 100%;
+  --primary-light: 219 100% 96%;
+  --success: 145 75% 37%;
+  --success-foreground: 0 0% 100%;
+  --muted: 213 35% 97%;
+  --muted-foreground: 215 19% 47%;
+  --input: 216 32% 97%;
+  --destructive: 3 72% 48%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

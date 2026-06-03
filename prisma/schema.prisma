@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Teacher {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tests        Test[]
+}
+
+model Test {
+  id          String        @id @default(uuid())
+  teacherId   String
+  title       String
+  description String?
+  status      TestStatus    @default(draft)
+  showScore   Boolean       @default(true)
+  timeLimitMinutes Int?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  teacher     Teacher       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  attempts    TestAttempt[]
+
+  @@index([teacherId])
+  @@index([status])
+}
+
+model Question {
+  id        String         @id @default(uuid())
+  testId    String
+  text      String
+  type      QuestionType   @default(single_choice)
+  order     Int
+  points    Int            @default(1)
+  test      Test           @relation(fields: [testId], references: [id], onDelete: Cascade)
+  options   AnswerOption[]
+  answers   StudentAnswer[]
+
+  @@index([testId])
+}
+
+model AnswerOption {
+  id         String          @id @default(uuid())
+  questionId String
+  text       String
+  isCorrect  Boolean         @default(false)
+  question   Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    StudentAnswer[]
+
+  @@index([questionId])
+}
+
+model TestAttempt {
+  id                   String          @id @default(uuid())
+  testId               String
+  participantFirstName String
+  participantLastName  String
+  status               AttemptStatus   @default(in_progress)
+  startedAt            DateTime        @default(now())
+  finishedAt           DateTime?
+  score                Int?
+  riskScore            Int?
+  test                 Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers              StudentAnswer[]
+  behaviorEvents       BehaviorEvent[]
+
+  @@index([testId])
+  @@index([status])
+}
+
+model StudentAnswer {
+  id             String       @id @default(uuid())
+  attemptId      String
+  questionId     String
+  answerOptionId String?
+  answerText     String?
+  createdAt      DateTime     @default(now())
+  attempt        TestAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerOption   AnswerOption? @relation(fields: [answerOptionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([answerOptionId])
+}
+
+model BehaviorEvent {
+  id        String      @id @default(uuid())
+  attemptId String
+  eventType EventType
+  eventTime DateTime
+  duration  Int?
+  details   String?
+  attempt   TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([eventType])
+}
+
+enum TestStatus {
+  draft
+  published
+}
+
+enum AttemptStatus {
+  in_progress
+  finished
+}
+
+enum QuestionType {
+  single_choice
+  open_text
+}
+
+enum EventType {
+  window_blur
+  window_focus
+  tab_hidden
+  tab_visible
+  copy
+  paste
+  suspicious_pause
+}
