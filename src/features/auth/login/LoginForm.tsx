@@ -10,10 +10,16 @@ import { useLoginTeacher } from "./use-login-teacher";
 export function LoginForm() {
   const loginMutation = useLoginTeacher();
 
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    loginMutation.mutate(new FormData(event.currentTarget));
+  }
+
   return (
     <Card className="w-full max-w-md">
       <h1 className="text-2xl font-semibold">Вхід викладача</h1>
-      <form action={(formData) => loginMutation.mutate(formData)} className="mt-6 space-y-4">
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <Input name="email" type="email" placeholder="Email" required />
         <Input name="password" type="password" placeholder="Пароль" required minLength={6} />
         {loginMutation.error ? (

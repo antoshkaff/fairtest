@@ -10,10 +10,16 @@ import { useRegisterTeacher } from "./use-register-teacher";
 export function RegisterForm() {
   const registerMutation = useRegisterTeacher();
 
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    registerMutation.mutate(new FormData(event.currentTarget));
+  }
+
   return (
     <Card className="w-full max-w-md">
       <h1 className="text-2xl font-semibold">Реєстрація викладача</h1>
-      <form action={(formData) => registerMutation.mutate(formData)} className="mt-6 space-y-4">
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <Input name="name" placeholder="Ім'я" required minLength={2} maxLength={100} />
         <Input name="email" type="email" placeholder="Email" required />
         <Input name="password" type="password" placeholder="Пароль" required minLength={6} />

@@ -72,6 +72,12 @@ type StartAttemptCardProps = {
 };
 
 function StartAttemptCard({ test, error, isStarting, onStart }: StartAttemptCardProps) {
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    onStart(new FormData(event.currentTarget));
+  }
+
   return (
     <Card className="mx-auto max-w-xl">
       <h1 className="text-2xl font-semibold">{test.title}</h1>
@@ -81,7 +87,7 @@ function StartAttemptCard({ test, error, isStarting, onStart }: StartAttemptCard
       {test.timeLimitMinutes ? (
         <p className="mt-2 text-sm font-medium">Ліміт часу: {test.timeLimitMinutes} хв</p>
       ) : null}
-      <form action={onStart} className="mt-6 space-y-4">
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <Input name="participantFirstName" placeholder="Ім'я" required maxLength={50} />
         <Input name="participantLastName" placeholder="Прізвище" required maxLength={50} />
         {error ? <p className="text-sm text-destructive">{error}</p> : null}

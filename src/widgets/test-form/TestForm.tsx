@@ -12,7 +12,10 @@ export function TestForm() {
   const questionEditor = useQuestionEditor();
   const createTestMutation = useCreateTest();
 
-  function onSubmit(formData: FormData) {
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
     const rawLimit = formData.get("timeLimitMinutes");
     createTestMutation.mutate({
       title: formData.get("title"),
@@ -25,7 +28,7 @@ export function TestForm() {
   }
 
   return (
-    <form action={onSubmit} className="space-y-5">
+    <form onSubmit={onSubmit} className="space-y-5">
       <TestSettingsCard />
 
       {questionEditor.questions.map((question, questionIndex) => (
